@@ -51,6 +51,7 @@ import os
 import traceback
 
 import pytest
+import yaml
 import version
 import contextlib
 import multiprocessing
@@ -65,6 +66,7 @@ from multiprocessing import Queue
 from pathlib import Path
 from shutil import rmtree
 from tkinter import (
+    Radiobutton,
     filedialog,
     font,
     messagebox,
@@ -224,6 +226,7 @@ def run_pytest(
     preload_config: str,
     preload_format: list,
     preload_source: str,
+    console_tb: bool,
 ):
     """Runs pytest using the given ``profile`` in a background process.  All
     ``stdout`` and ``stderr`` are redirected to ``log``.  The result of the job
@@ -249,6 +252,7 @@ def run_pytest(
                                 data source
     :param preload_format:      Selected preload format
     :param preload_source:      Name of selected preload data source plugin
+    :param console_tb:          Enable or disable traceback on failures
     """
     out_path = "{}/{}".format(PATH, OUT_DIR)
     if os.path.exists(out_path):
@@ -256,7 +260,7 @@ def run_pytest(
     with contextlib.redirect_stderr(log), contextlib.redirect_stdout(log):
         try:
             args = [
-                "--ignore=app_tests",
+                "tests",
                 "--capture=sys",
                 "--template-directory={}".format(template_dir),
                 "--report-format={}".format(report_format),
@@ -274,8 +278,53 @@ def run_pytest(
                     args.extend(("--category", category))
             if not halt_on_failure:
                 args.append("--continue-on-failure")
+            if not console_tb:
+                args.append("--tb=no")
             if preload_format:
                 args.append("--preload-format={}".format(preload_format))
+            print("args: ", " ".join(args))
+            pytest.main(args=args)
+            result_queue.put((True, None))
+        except Exception:
+            result_queue.put((False, traceback.format_exc()))
+
+
+def run_pytest_cnf(
+    template_dir: str,
+    log: TextIO,
+    result_queue: Queue,
+    report_format: str,
+    template_source: str,
+    console_tb: bool,
+):
+    """Runs pytest using the given ``profile`` in a background process.  All
+    ``stdout`` and ``stderr`` are redirected to ``log``.  The result of the job
+    will be put on the ``completion_queue``
+
+    :param template_dir:        The directory containing the files to be validated.
+    :param log: `               `stderr`` and ``stdout`` of the pytest job will be
+                                directed here
+    :param result_queue:        Completion status posted here.  See :class:`Config`
+                                for more information.
+    :param report_format:       Determines the style of report written.  Options are
+                                csv, html, or excel
+    :param template_source:     The path or name of the template to show on the report
+    :param console_tb:          Enable or disable traceback on failures
+    """
+    out_path = "{}/{}".format(PATH, OUT_DIR)
+    if os.path.exists(out_path):
+        rmtree(out_path, ignore_errors=True)
+    with contextlib.redirect_stderr(log), contextlib.redirect_stdout(log):
+        try:
+            args = [
+                "tests_cnf",
+                "--capture=sys",
+                "--package-directory={}".format(template_dir),
+                "--report-format={}".format(report_format),
+                "--package-source={}".format(template_source),
+            ]
+            if not console_tb:
+                args.append("--tb=no")
             print("args: ", " ".join(args))
             pytest.main(args=args)
             result_queue.put((True, None))
@@ -409,10 +458,65 @@ class ValidatorApp:
             self.footer = self.create_footer(parent_frame)
         parent_frame.pack(fill=BOTH, expand=True)
 
+        self.nf_type = StringVar(self._root, name="nf_type_var")
+        self.nf_type.set(self.config.default_nf_type_var)
+
+        def update_nf_type():
+            if self.nf_type.get() == "CNF":
+                category_frame.grid_remove()
+                preload_format_label.grid_remove()
+                preload_format_menu.grid_remove()
+                preload_source_label.grid_remove()
+                preload_source_menu.grid_remove()
+                halt_on_failure_label.grid_remove()
+                halt_checkbox.grid_remove()
+                create_preloads_label.grid_remove()
+                create_preloads_checkbox.grid_remove()
+                preload_config_label.grid_remove()
+                self.preload_config_entry.grid_remove()
+                preload_config_browse.grid_remove()
+
+                additional_tests_frame.grid()
+
+                self.validate_button_text.set("Process Package")
+
+            if self.nf_type.get() == "VNF":
+                category_frame.grid()
+                preload_format_label.grid()
+                preload_format_menu.grid()
+                preload_source_label.grid()
+                preload_source_menu.grid()
+                halt_on_failure_label.grid()
+                halt_checkbox.grid()
+                create_preloads_label.grid()
+                create_preloads_checkbox.grid()
+                preload_config_label.grid()
+                self.preload_config_entry.grid()
+                preload_config_browse.grid()
+
+                additional_tests_frame.grid_remove()
+
+                self.validate_button_text.set("Process Templates")
+
         # profile start
+        nf_select_frame = LabelFrame(actions, text="Network Function Type")
+        nf_select_frame.grid(row=1, column=1, columnspan=3, pady=10, sticky="we")
+        VNF_radiobutton = Radiobutton(
+            nf_select_frame, variable=self.nf_type, value="VNF", command=update_nf_type
+        )
+        VNF_radiobutton.grid(row=1, column=1, sticky=W, padx=(50, 1))
+        VNF_label = Label(nf_select_frame, text="VNF")
+        VNF_label.grid(row=1, column=2, sticky=W)
+        CNF_radiobutton = Radiobutton(
+            nf_select_frame, variable=self.nf_type, value="CNF", command=update_nf_type
+        )
+        CNF_radiobutton.grid(row=1, column=3, sticky=W, padx=(50, 1))
+        CNF_label = Label(nf_select_frame, text="CNF")
+        CNF_label.grid(row=1, column=4, sticky=W)
+
         number_of_categories = len(self.config.category_names)
         category_frame = LabelFrame(actions, text="Additional Validation Categories:")
-        category_frame.grid(row=1, column=1, columnspan=3, pady=5, sticky="we")
+        category_frame.grid(row=2, column=1, columnspan=3, pady=5, sticky="we")
 
         self.categories = []
 
@@ -486,6 +590,217 @@ class ValidatorApp:
         )
         settings_row += 1
 
+        additional_tests_frame = Frame(settings_frame)
+        additional_tests_row = 1
+        additional_tests_label = Label(
+            additional_tests_frame, text="Additional Tests:", anchor=W, justify=LEFT
+        )
+        additional_tests_label.grid(
+            row=additional_tests_row, column=1, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        self.strict_helm_lint_var = BooleanVar(self._root, name="strict_helm_lint_var")
+        self.strict_helm_lint_var.set(self.config.default_strict_helm_lint_var)
+        strict_helm_lint_var_label = Label(
+            additional_tests_frame, text="Strict lint test:", anchor=W, justify=LEFT
+        )
+        strict_helm_lint_var_label.grid(
+            row=additional_tests_row, column=2, sticky=W, pady=5
+        )
+        strict_helm_lint_var_checkbox = Checkbutton(
+            additional_tests_frame,
+            offvalue=False,
+            onvalue=True,
+            variable=self.strict_helm_lint_var,
+        )
+        strict_helm_lint_var_checkbox.grid(
+            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        self.license_present_in_helm_var = BooleanVar(
+            self._root, name="license_present_in_helm_var"
+        )
+        self.license_present_in_helm_var.set(
+            self.config.default_license_present_in_helm_var
+        )
+        license_present_in_helm_var_label = Label(
+            additional_tests_frame,
+            text="LICENSE present in each Helm chart:",
+            anchor=W,
+            justify=LEFT,
+        )
+        license_present_in_helm_var_label.grid(
+            row=additional_tests_row, column=2, sticky=W, pady=5
+        )
+        license_present_in_helm_var_checkbox = Checkbutton(
+            additional_tests_frame,
+            offvalue=False,
+            onvalue=True,
+            variable=self.license_present_in_helm_var,
+        )
+        license_present_in_helm_var_checkbox.grid(
+            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        self.readme_present_in_helm_var = BooleanVar(
+            self._root, name="readme_present_in_helm_var"
+        )
+        self.readme_present_in_helm_var.set(
+            self.config.default_readme_present_in_helm_var
+        )
+        readme_present_in_helm_var_label = Label(
+            additional_tests_frame,
+            text="README.md present in each Helm chart:",
+            anchor=W,
+            justify=LEFT,
+        )
+        readme_present_in_helm_var_label.grid(
+            row=additional_tests_row, column=2, sticky=W, pady=5
+        )
+        readme_present_in_helm_var_checkbox = Checkbutton(
+            additional_tests_frame,
+            offvalue=False,
+            onvalue=True,
+            variable=self.readme_present_in_helm_var,
+        )
+        readme_present_in_helm_var_checkbox.grid(
+            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        self.appVersion_present_var = BooleanVar(
+            self._root, name="appVersion_present_var"
+        )
+        self.appVersion_present_var.set(self.config.default_appVersion_present_var)
+        appVersion_present_var_label = Label(
+            additional_tests_frame,
+            text="'appVersion' present in Chart.yaml:",
+            anchor=W,
+            justify=LEFT,
+        )
+        appVersion_present_var_label.grid(
+            row=additional_tests_row, column=2, sticky=W, pady=5
+        )
+        appVersion_present_var_checkbox = Checkbutton(
+            additional_tests_frame,
+            offvalue=False,
+            onvalue=True,
+            variable=self.appVersion_present_var,
+        )
+        appVersion_present_var_checkbox.grid(
+            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        self.appVersion_in_quotes_var = BooleanVar(
+            self._root, name="appVersion_in_quotes_var"
+        )
+        self.appVersion_in_quotes_var.set(self.config.default_appVersion_in_quotes_var)
+        appVersion_in_quotes_var_label = Label(
+            additional_tests_frame,
+            text="'appVersion' value wrapped in double quotes:",
+            anchor=W,
+            justify=LEFT,
+        )
+        appVersion_in_quotes_var_label.grid(
+            row=additional_tests_row, column=2, sticky=W, pady=5
+        )
+        appVersion_in_quotes_var_checkbox = Checkbutton(
+            additional_tests_frame,
+            offvalue=False,
+            onvalue=True,
+            variable=self.appVersion_in_quotes_var,
+        )
+        appVersion_in_quotes_var_checkbox.grid(
+            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        self.notes_present_in_templates_var = BooleanVar(
+            self._root, name="notes_present_in_templates_var"
+        )
+        self.notes_present_in_templates_var.set(
+            self.config.default_notes_present_in_templates_var
+        )
+        notes_present_in_templates_var_label = Label(
+            additional_tests_frame,
+            text="templates/NOTES.txt present in Helm chart:",
+            anchor=W,
+            justify=LEFT,
+        )
+        notes_present_in_templates_var_label.grid(
+            row=additional_tests_row, column=2, sticky=W, pady=5
+        )
+        notes_present_in_templates_var_checkbox = Checkbutton(
+            additional_tests_frame,
+            offvalue=False,
+            onvalue=True,
+            variable=self.notes_present_in_templates_var,
+        )
+        notes_present_in_templates_var_checkbox.grid(
+            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        self.helm_verify_integrity_var = BooleanVar(
+            self._root, name="helm_verify_integrity_var"
+        )
+        self.helm_verify_integrity_var.set(
+            self.config.default_helm_verify_integrity_var
+        )
+        helm_verify_integrity_var_label = Label(
+            additional_tests_frame,
+            text="Verify Helm integrity:",
+            anchor=W,
+            justify=LEFT,
+        )
+        helm_verify_integrity_var_label.grid(
+            row=additional_tests_row, column=2, sticky=W, pady=5
+        )
+        helm_verify_integrity_var_checkbox = Checkbutton(
+            additional_tests_frame,
+            offvalue=False,
+            onvalue=True,
+            variable=self.helm_verify_integrity_var,
+        )
+        helm_verify_integrity_var_checkbox.grid(
+            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
+        )
+        additional_tests_row += 1
+
+        additional_tests_frame.grid(
+            row=settings_row, column=1, columnspan=3, sticky=W, pady=5
+        )
+        settings_row += 1
+
+        console_tb_frame = Frame(settings_frame)
+        self.console_tb = BooleanVar(self._root, name="console_tb")
+        self.console_tb.set(self.config.default_console_tb)
+        console_tb_label = Label(
+            console_tb_frame, text="Console output:", anchor=W, justify=LEFT
+        )
+        console_tb_label.grid(row=settings_row, column=1, sticky=W, pady=5)
+        tb_enable_radiobutton = Radiobutton(
+            console_tb_frame, variable=self.console_tb, value=True
+        )
+        tb_enable_radiobutton.grid(row=settings_row, column=2, sticky=W)
+        tb_enable_label = Label(console_tb_frame, text="Detailed")
+        tb_enable_label.grid(row=settings_row, column=3, sticky=W)
+        tb_disable_radiobutton = Radiobutton(
+            console_tb_frame, variable=self.console_tb, value=False
+        )
+        tb_disable_radiobutton.grid(row=settings_row, column=4, sticky=W)
+        tb_disable_label = Label(console_tb_frame, text="Simple")
+        tb_disable_label.grid(row=settings_row, column=5, sticky=W)
+
+        console_tb_frame.grid(
+            row=settings_row, column=1, columnspan=3, sticky=W, pady=5
+        )
+        settings_row += 1
+
         self.halt_on_failure = BooleanVar(self._root, name="halt_on_failure")
         self.halt_on_failure.set(self.config.default_halt_on_failure)
         halt_on_failure_label = Label(
@@ -542,8 +857,11 @@ class ValidatorApp:
         )
         preload_config_browse.grid(row=5, column=3, pady=5, sticky=W)
 
+        self.validate_button_text = StringVar()
+        self.validate_button_text.set("Process Templates")
+
         validate_button = Button(
-            actions, text="Process Templates", command=self.validate
+            actions, textvariable=self.validate_button_text, command=self.validate
         )
         validate_button.grid(row=6, column=1, columnspan=2, pady=5)
 
@@ -583,6 +901,7 @@ class ValidatorApp:
                 self.completion_label.pack_forget(),
                 self.result_label.pack_forget(),
                 self.preload_label.pack_forget(),
+                update_nf_type(),
             )
         )
 
@@ -594,6 +913,15 @@ class ValidatorApp:
             self.preload_format,
             self.create_preloads,
             self.preload_source,
+            self.strict_helm_lint_var,
+            self.license_present_in_helm_var,
+            self.readme_present_in_helm_var,
+            self.appVersion_present_var,
+            self.appVersion_in_quotes_var,
+            self.notes_present_in_templates_var,
+            self.helm_verify_integrity_var,
+            self.nf_type,
+            self.console_tb
         )
         self.schedule(self.execute_pollers)
         if self.config.terms_link_text and not self.config.are_terms_accepted:
@@ -674,27 +1002,72 @@ class ValidatorApp:
 
         template_dir = self.resolve_template_dir()
 
+        optional_cnf_tests_settings = {}
+
         if template_dir:
             self.kill_background_task()
             self.clear_log()
             self.completion_label.pack_forget()
             self.result_label.pack_forget()
             self.preload_label.pack_forget()
-            self.task = multiprocessing.Process(
-                target=run_pytest,
-                args=(
-                    template_dir,
-                    self.config.log_file,
-                    self.config.status_queue,
-                    self.categories_list(),
-                    self.report_format.get().lower(),
-                    self.halt_on_failure.get(),
-                    self.template_source.get(),
-                    self.preload_config.get(),
-                    self.preload_format.get(),
-                    self.preload_source.get(),
-                ),
+            # if self.nf_type == "VNF":
+            self.task = (
+                multiprocessing.Process(
+                    target=run_pytest,
+                    args=(
+                        template_dir,
+                        self.config.log_file,
+                        self.config.status_queue,
+                        self.categories_list(),
+                        self.report_format.get().lower(),
+                        self.halt_on_failure.get(),
+                        self.template_source.get(),
+                        self.preload_config.get(),
+                        self.preload_format.get(),
+                        self.preload_source.get(),
+                        self.console_tb.get(),
+                    ),
+                )
+                if self.nf_type.get() == "VNF"
+                else multiprocessing.Process(
+                    target=run_pytest_cnf,
+                    args=(
+                        template_dir,
+                        self.config.log_file,
+                        self.config.status_queue,
+                        self.report_format.get().lower(),
+                        self.template_source.get(),
+                        self.console_tb.get(),
+                    ),
+                )
             )
+            if self.nf_type.get() == "CNF":
+                optional_cnf_tests_settings[
+                    "strict_helm_lint"
+                ] = self.strict_helm_lint_var.get()
+                optional_cnf_tests_settings[
+                    "license_present_in_helm"
+                ] = self.license_present_in_helm_var.get()
+                optional_cnf_tests_settings[
+                    "readme_present_in_helm"
+                ] = self.readme_present_in_helm_var.get()
+                optional_cnf_tests_settings[
+                    "appVersion_present"
+                ] = self.appVersion_present_var.get()
+                optional_cnf_tests_settings[
+                    "appVersion_in_quotes"
+                ] = self.appVersion_in_quotes_var.get()
+                optional_cnf_tests_settings[
+                    "notes_present_in_templates"
+                ] = self.notes_present_in_templates_var.get()
+                optional_cnf_tests_settings[
+                    "helm_verify_integrity"
+                ] = self.helm_verify_integrity_var.get()
+                optional_cnf_tests_settings_file = open(
+                    "tests_cnf/optional_tests_setting.yaml", "w"
+                )
+                yaml.dump(optional_cnf_tests_settings, optional_cnf_tests_settings_file)
+
             self.task.daemon = True
             self.task.start()
 
@@ -738,7 +1111,7 @@ class ValidatorApp:
             if is_success:
                 self.completion_label.pack()
                 self.result_label.pack()  # Show report link
-                if hasattr(self, "preload_format"):
+                if hasattr(self, "preload_format") and self.nf_type.get() == "VNF":
                     self.preload_label.pack()  # Show preload link
             else:
                 self.log_panel.insert(END, str(e))

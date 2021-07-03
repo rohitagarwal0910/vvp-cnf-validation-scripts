@@ -1,0 +1,28 @@
+{
+    "type" : "object",
+    "properties" : {
+        "name" : {
+            "type" : "string"
+        },
+        "description" : {
+            "type" : "string"
+        },
+        "data" : {
+            "type" : "array",
+            "items" : {
+                "type" : "object",
+                "properties" : {
+                    "file" : {
+                        "type" : "string"
+                    },
+                    "type" : {
+                        "type" : "string"
+                    },
+                    "isBase" : { "enum": [ "true", "false" ] }
+                },
+                "required" : ["file", "type"]
+            }
+        }
+    },
+    "required" : ["name", "description", "data"]
+}

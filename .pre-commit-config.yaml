@@ -35,7 +35,7 @@
 # ============LICENSE_END============================================
 repos:
 -   repo: https://github.com/ambv/black
-    rev: stable
+    rev: 21.6b0
     hooks:
     - id: black
-      language_version: python3.6
+      language_version: python3.7

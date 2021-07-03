@@ -1,0 +1,103 @@
+{
+    "created": "",
+    "current_version": "",
+    "project": "",
+    "versions": {
+        "": {
+            "created": "",
+            "filters": {},
+            "filters_amount": 0,
+            "needs": {
+                "R-C00001": {
+                    "description": "Package must be a valid .zip file or an unarchived directory",
+                    "keyword": "MUST"
+                },
+                "R-C00002": {
+                    "description": "Package must have a valid MANIFEST.json file",
+                    "keyword": "MUST"
+                },
+                "R-C00003": {
+                    "description": "Package must have atleast one artifact",
+                    "keyword": "MUST"
+                },
+                "R-C00004": {
+                    "description": "MANIFEST.json must have a 'name' field containing string data",
+                    "keyword": "MUST"
+                },
+                "R-C00005": {
+                    "description": "MANIFEST.json must have a 'description' field containing string data",
+                    "keyword": "MUST"
+                },
+                "R-C00006": {
+                    "description": "MANIFEST.json must have a 'data' field containing array data",
+                    "keyword": "MUST"
+                },
+                "R-C00007": {
+                    "description": "Items in 'data' field in MANIFEST.json must 'file' and 'type' properties and can have 'isBase' properties. All must be string. 'isBase' must be 'true' or 'false'",
+                    "keyword": "MUST"
+                },
+                "R-C00008": {
+                    "description": "'data' field in MANIFEST.json must have atleast one artifact entry",
+                    "keyword": "MUST"
+                },
+                "R-C00009": {
+                    "description": "'data' field in MANIFEST.json must list all files present in package",
+                    "keyword": "MUST"
+                },
+                "R-C00010": {
+                    "description": "All files listed in 'data' field in MANIFEST.json must be present in package",
+                    "keyword": "MUST"
+                },
+                "R-C00011": {
+                    "description": "'data' field in MANIFEST.json must not have duplicate entries",
+                    "keyword": "MUST"
+                },
+                "R-C00012": {
+                    "description": "Each HELM artifact must have 'isBase' defined",
+                    "keyword": "MUST"
+                },
+                "R-C00013": {
+                    "description": "HELM artifacts must have prefix 'helm_'. HEAT artifacts should not contain keyword 'HELM",
+                    "keyword": "MUST"
+                },
+                "R-C00014": {
+                    "description": "HELM artifacts must have extension .tgz",
+                    "keyword": "MUST"
+                },
+                "R-C00015": {
+                    "description": "One of the HELM artifacts should have “isBase” true in MANIFEST.json",
+                    "keyword": "MUST"
+                },
+                "R-C00016": {
+                    "description": "HELM artifacts must pass ‘helm lint'",
+                    "keyword": "MUST"
+                },
+                "R-C00017": {
+                    "description": "appVersion should be given in Chart.yaml",
+                    "keyword": "SHOULD"
+                },
+                "R-C00018": {
+                    "description": "appVersion in Chart.yaml, if given, should be in quotes",
+                    "keyword": "SHOULD"
+                },
+                "R-C00019": {
+                    "description": "Helm chart should have a LICENSE file",
+                    "keyword": "SHOULD"
+                },
+                "R-C00020": {
+                    "description": "Helm chart should have a README.md file",
+                    "keyword": "SHOULD"
+                },
+                "R-C00021": {
+                    "description": "Helm chart should have templates/NOTES.txt if 'templates' folder exists",
+                    "keyword": "SHOULD"
+                },
+                "R-C00022": {
+                    "description": "Helm chart should pass integrity check ('helm verify')",
+                    "keyword": "SHOULD"
+                }
+            },
+            "needs_amount": 22
+        }
+    }
+}

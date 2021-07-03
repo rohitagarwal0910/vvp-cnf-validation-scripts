@@ -293,6 +293,50 @@ class Config:
             specs.append(getattr(module, attr))
         return specs
 
+    @property
+    def default_nf_type_var(self):
+        return self._user_settings.get("nf_type_var", "CNF")
+
+    @property
+    def default_console_tb(self):
+        setting = self._user_settings.get("console_tb", "True")
+        return setting.lower() == "true"
+
+    @property
+    def default_strict_helm_lint_var(self):
+        setting = self._user_settings.get("strict_helm_lint_var", "True")
+        return setting.lower() == "true"
+
+    @property
+    def default_license_present_in_helm_var(self):
+        setting = self._user_settings.get("license_present_in_helm_var", "False")
+        return setting.lower() == "true"
+
+    @property
+    def default_readme_present_in_helm_var(self):
+        setting = self._user_settings.get("readme_present_in_helm_var", "False")
+        return setting.lower() == "true"
+
+    @property
+    def default_appVersion_present_var(self):
+        setting = self._user_settings.get("appVersion_present_var", "True")
+        return setting.lower() == "true"
+
+    @property
+    def default_appVersion_in_quotes_var(self):
+        setting = self._user_settings.get("appVersion_in_quotes_var", "True")
+        return setting.lower() == "true"
+
+    @property
+    def default_notes_present_in_templates_var(self):
+        setting = self._user_settings.get("notes_present_in_templates_var", "False")
+        return setting.lower() == "true"
+
+    @property
+    def default_helm_verify_integrity_var(self):
+        setting = self._user_settings.get("helm_verify_integrity_var", "False")
+        return setting.lower() == "true"
+
     def _validate(self):
         """Ensures the config file is properly formatted"""
         categories = self._config["categories"]
@@ -323,7 +367,7 @@ class QueueWriter:
         self.queue = log_queue
 
     def write(self, data: str):
-        """Writes ``data`` to the queue """
+        """Writes ``data`` to the queue"""
         self.queue.put(data)
 
     # noinspection PyMethodMayBeStatic

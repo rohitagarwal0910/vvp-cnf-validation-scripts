@@ -1,0 +1,7 @@
+appVersion_in_quotes: true
+appVersion_present: true
+helm_verify_integrity: false
+license_present_in_helm: false
+notes_present_in_templates: false
+readme_present_in_helm: false
+strict_helm_lint: true
