@@ -27,34 +27,34 @@ GUI
 ###
 To start the GUI:
 
-#. Navigate to ``ice-validator`` directory::
+#. Navigate to ``ice_validator`` directory::
     
-    cd <vvp-directory>/ice-validator
+    cd <vvp-directory>/ice_validator
    
 #. Execute the script for launching GUI::
   
     python vvp.py
 
 This will launch the VVP tool window. Select CNF package and choose desired settings.
-Click on ``Process Templates`` button to start validation. Result will be printed on the right side. Click ``View Report`` button to see test report in HTML, CSV or Excel format as per your choice.
+Click on ``Process Package`` button to start validation. Result will be printed on the right side. Click ``View Report`` button to see test report in HTML, CSV or Excel format as per your choice.
 
 Command line
 #########
 To validate a CNF package:
 
-#. Navigate to ``ice-validator`` directory::
+#. Navigate to ``ice_validator`` directory::
     
-    cd <vvp-directory>/ice-validator
+    cd <vvp-directory>/ice_validator
 
 #. Run ``pytest`` command. This will run tests with default settings::
     
-    pytest tests-cnf --package-directory=<path-to-package>
+    pytest tests_cnf --package-directory=<path-to-package>
    
    Where ``<path-to-package>`` points to location of the CNF package. Both ``.zip`` file and uncompressed directories are supported.
 
-Additional tests can be enabled or disbaled as per wish. Go to ``ice-validator/tests-cnf/optional_tests_setting.yaml`` and set desired tests to ``true``.
+Additional tests can be enabled or disbaled as per wish. Go to ``ice_validator/tests_cnf/optional_tests_setting.yaml`` and set desired tests to ``true``.
 
-Test results will be written to the consoles describing any failures that are encountered. If no failures are found, then a success message will be displayed. Additional report in HTML(default), CSV or Excel format can be found in the <VVP Directory>/ice_validator/output directory.
+Test results will be written to the consoles describing any failures that are encountered. If no failures are found, then a success message will be displayed. Additional report in HTML(default), CSV or Excel format can be found in the ``<VVP Directory>/ice_validator/output`` directory.
 
 Following flags are supported to change configuration: ::
    
@@ -72,4 +72,4 @@ Following flags are supported to change configuration: ::
                       
 Refer to pytest documentation for flags provided by the library.
 
-*Note: Contents of* ``ice-validator/cnf_requirements.json`` *are not a part of formal specification. That file has been made for enabling listing requirements along with failures in generated reports.*
+*Note: Contents of* ``ice_validator/cnf_requirements.json`` *are not a part of formal specification. That file has been made for enabling listing requirements along with failures in generated reports.*
