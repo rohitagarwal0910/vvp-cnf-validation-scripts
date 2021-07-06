@@ -58,7 +58,7 @@ Test results will be written to the consoles describing any failures that are en
 
 Following flags are supported to change configuration: ::
    
-   --template-directory=<path-to-package>
+   --package-directory=<path-to-package>
                       Path to .zip file or directory which holds the package for validation
    
    --optional-tests-setting=<path-to-yaml-file>
