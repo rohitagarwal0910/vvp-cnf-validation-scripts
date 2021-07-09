@@ -217,7 +217,8 @@ class TestResult:
         If no requirements are mapped, then it returns the empty string.
 
         :param curr_reqs: mapping of requirement IDs to requirement metadata
-                          loaded from the VNFRQTS projects needs.json output
+                          loaded from the VNFRQTS projects needs.json output.
+                          Right now the metadata is loaded from a custom json file with dummy IDs as VNFRQTS is only for VNFs.
         :return: ID and text of the requirements mapped to the test case
         """
         text = (
@@ -238,6 +239,7 @@ class TestResult:
 
         :param curr_reqs: mapping of requirement IDs to requirement metadata
                           loaded from the VNFRQTS projects needs.json output
+                          Right now the metadata is loaded from a custom json file with dummy IDs as VNFRQTS is only for VNFs.
         :return: List of requirement metadata
         """
         data = []
@@ -282,17 +284,6 @@ def pytest_runtest_makereport(item, call):
     if outcome.get_result().when != "call":
         return  # only capture results of test cases themselves
     result = TestResult(item, outcome)
-    # if (
-    #     not item.config.option.continue_on_failure
-    #     and result.is_base_test
-    #     and result.is_failed
-    # ):
-    #     msg = "!!Base Test Failure!! Halting test suite execution...\n{}".format(
-    #         result.error_message
-    #     )
-    #     result.error_message = msg
-    #     ALL_RESULTS.append(result)
-    #     pytest.exit("{}\n{}\n{}".format(msg, result.files, result.test_case))
 
     ALL_RESULTS.append(result)
 
@@ -360,7 +351,7 @@ def generate_report(outpath, template_path, output_format="csv"):
     Generates the various output reports.
 
     :param outpath: destination directory for all reports
-    :param template_path: directory containing the Heat templates validated
+    :param template_path: directory containing the CNF package validated
     :param output_format: One of "html", "excel", or "csv". Default is "html"
     :raises: ValueError if requested output format is unknown
     """
@@ -737,6 +728,7 @@ def pytest_addoption(parser):
         "--package-directory",
         dest="package_dir",
         action="store",
+        help="Path to .zip file or directory which holds the package for validation",
     )
 
     parser.addoption(
@@ -744,6 +736,7 @@ def pytest_addoption(parser):
         dest="optional_tests_setting",
         action="store",
         default=os.path.join(os.path.dirname(__file__), "optional_tests_setting.yaml"),
+        help="Alternate file containing settings for additional tests",
     )
 
     parser.addoption("--package-source", dest="package_source", action="store")
@@ -753,6 +746,7 @@ def pytest_addoption(parser):
         dest="output_dir",
         action="store",
         default=None,
+        help="Alternate directory for report output.",
     )
 
     parser.addoption(

@@ -130,9 +130,11 @@ def test_appVersion_in_quotes(helm_chart_yaml_file_path, helm_chart_yaml_data):
         for line in yaml_content:
             if line.strip().startswith("appVersion"):
                 line_content = line.strip().split()
-                assert line_content[-1].startswith('"') and line_content[-1].endswith(
-                    '"'
-                ), "'appVersion' is not wrapped in double quotes in Chart.yaml in package {}".format(
+                assert (
+                    line_content[-1].startswith('"') and line_content[-1].endswith('"')
+                ) or (
+                    line_content[-1].startswith("'") and line_content[-1].endswith("'")
+                ), "'appVersion' is not wrapped in quotes in Chart.yaml in package {}".format(
                     helm_chart_yaml_data["name"]
                 )
                 break

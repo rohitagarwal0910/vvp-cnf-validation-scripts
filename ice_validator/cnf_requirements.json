@@ -65,7 +65,7 @@
                     "keyword": "MUST"
                 },
                 "R-C00015": {
-                    "description": "One of the HELM artifacts should have “isBase” true in MANIFEST.json",
+                    "description": "One of the HELM artifacts must have “isBase” true in MANIFEST.json",
                     "keyword": "MUST"
                 },
                 "R-C00016": {

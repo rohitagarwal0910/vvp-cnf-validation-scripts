@@ -600,176 +600,25 @@ class ValidatorApp:
         )
         additional_tests_row += 1
 
-        self.strict_helm_lint_var = BooleanVar(self._root, name="strict_helm_lint_var")
-        self.strict_helm_lint_var.set(self.config.default_strict_helm_lint_var)
-        strict_helm_lint_var_label = Label(
-            additional_tests_frame, text="Strict lint test:", anchor=W, justify=LEFT
-        )
-        strict_helm_lint_var_label.grid(
-            row=additional_tests_row, column=2, sticky=W, pady=5
-        )
-        strict_helm_lint_var_checkbox = Checkbutton(
-            additional_tests_frame,
-            offvalue=False,
-            onvalue=True,
-            variable=self.strict_helm_lint_var,
-        )
-        strict_helm_lint_var_checkbox.grid(
-            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
-        )
-        additional_tests_row += 1
+        number_of_additional_cnf_tests = len(self.config.additional_cnf_tests)
+        self.additional_cnf_tests = []
 
-        self.license_present_in_helm_var = BooleanVar(
-            self._root, name="license_present_in_helm_var"
-        )
-        self.license_present_in_helm_var.set(
-            self.config.default_license_present_in_helm_var
-        )
-        license_present_in_helm_var_label = Label(
-            additional_tests_frame,
-            text="LICENSE present in each Helm chart:",
-            anchor=W,
-            justify=LEFT,
-        )
-        license_present_in_helm_var_label.grid(
-            row=additional_tests_row, column=2, sticky=W, pady=5
-        )
-        license_present_in_helm_var_checkbox = Checkbutton(
-            additional_tests_frame,
-            offvalue=False,
-            onvalue=True,
-            variable=self.license_present_in_helm_var,
-        )
-        license_present_in_helm_var_checkbox.grid(
-            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
-        )
-        additional_tests_row += 1
-
-        self.readme_present_in_helm_var = BooleanVar(
-            self._root, name="readme_present_in_helm_var"
-        )
-        self.readme_present_in_helm_var.set(
-            self.config.default_readme_present_in_helm_var
-        )
-        readme_present_in_helm_var_label = Label(
-            additional_tests_frame,
-            text="README.md present in each Helm chart:",
-            anchor=W,
-            justify=LEFT,
-        )
-        readme_present_in_helm_var_label.grid(
-            row=additional_tests_row, column=2, sticky=W, pady=5
-        )
-        readme_present_in_helm_var_checkbox = Checkbutton(
-            additional_tests_frame,
-            offvalue=False,
-            onvalue=True,
-            variable=self.readme_present_in_helm_var,
-        )
-        readme_present_in_helm_var_checkbox.grid(
-            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
-        )
-        additional_tests_row += 1
-
-        self.appVersion_present_var = BooleanVar(
-            self._root, name="appVersion_present_var"
-        )
-        self.appVersion_present_var.set(self.config.default_appVersion_present_var)
-        appVersion_present_var_label = Label(
-            additional_tests_frame,
-            text="'appVersion' present in Chart.yaml:",
-            anchor=W,
-            justify=LEFT,
-        )
-        appVersion_present_var_label.grid(
-            row=additional_tests_row, column=2, sticky=W, pady=5
-        )
-        appVersion_present_var_checkbox = Checkbutton(
-            additional_tests_frame,
-            offvalue=False,
-            onvalue=True,
-            variable=self.appVersion_present_var,
-        )
-        appVersion_present_var_checkbox.grid(
-            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
-        )
-        additional_tests_row += 1
-
-        self.appVersion_in_quotes_var = BooleanVar(
-            self._root, name="appVersion_in_quotes_var"
-        )
-        self.appVersion_in_quotes_var.set(self.config.default_appVersion_in_quotes_var)
-        appVersion_in_quotes_var_label = Label(
-            additional_tests_frame,
-            text="'appVersion' value wrapped in double quotes:",
-            anchor=W,
-            justify=LEFT,
-        )
-        appVersion_in_quotes_var_label.grid(
-            row=additional_tests_row, column=2, sticky=W, pady=5
-        )
-        appVersion_in_quotes_var_checkbox = Checkbutton(
-            additional_tests_frame,
-            offvalue=False,
-            onvalue=True,
-            variable=self.appVersion_in_quotes_var,
-        )
-        appVersion_in_quotes_var_checkbox.grid(
-            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
-        )
-        additional_tests_row += 1
-
-        self.notes_present_in_templates_var = BooleanVar(
-            self._root, name="notes_present_in_templates_var"
-        )
-        self.notes_present_in_templates_var.set(
-            self.config.default_notes_present_in_templates_var
-        )
-        notes_present_in_templates_var_label = Label(
-            additional_tests_frame,
-            text="templates/NOTES.txt present in Helm chart:",
-            anchor=W,
-            justify=LEFT,
-        )
-        notes_present_in_templates_var_label.grid(
-            row=additional_tests_row, column=2, sticky=W, pady=5
-        )
-        notes_present_in_templates_var_checkbox = Checkbutton(
-            additional_tests_frame,
-            offvalue=False,
-            onvalue=True,
-            variable=self.notes_present_in_templates_var,
-        )
-        notes_present_in_templates_var_checkbox.grid(
-            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
-        )
-        additional_tests_row += 1
-
-        self.helm_verify_integrity_var = BooleanVar(
-            self._root, name="helm_verify_integrity_var"
-        )
-        self.helm_verify_integrity_var.set(
-            self.config.default_helm_verify_integrity_var
-        )
-        helm_verify_integrity_var_label = Label(
-            additional_tests_frame,
-            text="Verify Helm integrity:",
-            anchor=W,
-            justify=LEFT,
-        )
-        helm_verify_integrity_var_label.grid(
-            row=additional_tests_row, column=2, sticky=W, pady=5
-        )
-        helm_verify_integrity_var_checkbox = Checkbutton(
-            additional_tests_frame,
-            offvalue=False,
-            onvalue=True,
-            variable=self.helm_verify_integrity_var,
-        )
-        helm_verify_integrity_var_checkbox.grid(
-            row=additional_tests_row, column=3, columnspan=2, sticky=W, pady=5
-        )
-        additional_tests_row += 1
+        for x in range(0, number_of_additional_cnf_tests):
+            test = self.config.additional_cnf_tests[x]
+            test_value = BooleanVar(self._root, name=test["test"])
+            test_value.set(self.config.get_additional_cnf_test_value(test_value._name))
+            self.additional_cnf_tests.append(test_value)
+            test_label = Label(
+                additional_tests_frame, text=test["name"], anchor=W, justify=LEFT
+            )
+            test_label.grid(row=x + 2, column=2, sticky=W, pady=5)
+            test_checkbox = Checkbutton(
+                additional_tests_frame,
+                offvalue=False,
+                onvalue=True,
+                variable=self.additional_cnf_tests[x],
+            )
+            test_checkbox.grid(row=x + 2, column=3, columnspan=2, sticky=W, pady=5)
 
         additional_tests_frame.grid(
             row=settings_row, column=1, columnspan=3, sticky=W, pady=5
@@ -913,13 +762,7 @@ class ValidatorApp:
             self.preload_format,
             self.create_preloads,
             self.preload_source,
-            self.strict_helm_lint_var,
-            self.license_present_in_helm_var,
-            self.readme_present_in_helm_var,
-            self.appVersion_present_var,
-            self.appVersion_in_quotes_var,
-            self.notes_present_in_templates_var,
-            self.helm_verify_integrity_var,
+            *self.additional_cnf_tests,
             self.nf_type,
             self.console_tb
         )
@@ -1042,27 +885,11 @@ class ValidatorApp:
                 )
             )
             if self.nf_type.get() == "CNF":
-                optional_cnf_tests_settings[
-                    "strict_helm_lint"
-                ] = self.strict_helm_lint_var.get()
-                optional_cnf_tests_settings[
-                    "license_present_in_helm"
-                ] = self.license_present_in_helm_var.get()
-                optional_cnf_tests_settings[
-                    "readme_present_in_helm"
-                ] = self.readme_present_in_helm_var.get()
-                optional_cnf_tests_settings[
-                    "appVersion_present"
-                ] = self.appVersion_present_var.get()
-                optional_cnf_tests_settings[
-                    "appVersion_in_quotes"
-                ] = self.appVersion_in_quotes_var.get()
-                optional_cnf_tests_settings[
-                    "notes_present_in_templates"
-                ] = self.notes_present_in_templates_var.get()
-                optional_cnf_tests_settings[
-                    "helm_verify_integrity"
-                ] = self.helm_verify_integrity_var.get()
+                for x in range(0, len(self.config.additional_cnf_tests)):
+                    test = self.config.additional_cnf_tests[x]
+                    optional_cnf_tests_settings[
+                        test["test"]
+                    ] = self.additional_cnf_tests[x].get()
                 optional_cnf_tests_settings_file = open(
                     "tests_cnf/optional_tests_setting.yaml", "w"
                 )

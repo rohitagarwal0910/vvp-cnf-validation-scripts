@@ -52,5 +52,36 @@ categories:
       Uses the latest OpenStack Heat community version available to validate that
       a heat template is valid OpenStack Heat. This testing is equivalent to using
       heat template-validate from the command line.
+additional-cnf-tests:
+  - name: Srtict Helm lint test
+    test: strict_helm_lint
+    description:
+      Runs 'helm lint --strict' on Helm charts. Warnings are also considered as errors.
+  - name: LICENSE present in each Helm chart
+    test: license_present_in_helm
+    description:
+      Tests if LICENSE file is present in Helm charts or not
+  - name: README.md present in Helm chart
+    test: readme_present_in_helm
+    description:
+      Tests if README.md file is present in Helm charts or not
+  - name: appVersion present in Chart.yaml
+    test: appVersion_present
+    description:
+      Tests if appVersion is present in Chart.yaml in Helm charts
+  - name: appVersion value wrapped in quotes
+    test: appVersion_in_quotes
+    description:
+      Tests if appVersion value is wrapped in quotes in Chart.yaml in Helm chart
+  - name: templates/NOTES.txt present in Helm chart
+    test: notes_present_in_templates
+    description:
+      Tests if NOTES.txt is present in templates/ in Helm chart, if templates directory exists
+  - name: Verify Helm integrity
+    test: helm_verify_integrity
+    description:
+      Run 'helm verify' test on Helm charts
+
+    
 settings:
   polling-freqency: 1000

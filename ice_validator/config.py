@@ -1,3 +1,4 @@
+from cgi import test
 import importlib
 import multiprocessing
 import os
@@ -137,6 +138,11 @@ class Config:
     def category_names(self) -> List[str]:
         """List of validation profile names for display in the UI"""
         return [category["name"] for category in self._config["categories"]]
+
+    @property
+    def additional_cnf_tests(self) -> List:
+        """List of additional CNF tests for display in the UI"""
+        return self._config["additional-cnf-tests"]
 
     @property
     def polling_frequency(self) -> int:
@@ -302,40 +308,9 @@ class Config:
         setting = self._user_settings.get("console_tb", "True")
         return setting.lower() == "true"
 
-    @property
-    def default_strict_helm_lint_var(self):
-        setting = self._user_settings.get("strict_helm_lint_var", "True")
-        return setting.lower() == "true"
-
-    @property
-    def default_license_present_in_helm_var(self):
-        setting = self._user_settings.get("license_present_in_helm_var", "False")
-        return setting.lower() == "true"
-
-    @property
-    def default_readme_present_in_helm_var(self):
-        setting = self._user_settings.get("readme_present_in_helm_var", "False")
-        return setting.lower() == "true"
-
-    @property
-    def default_appVersion_present_var(self):
-        setting = self._user_settings.get("appVersion_present_var", "True")
-        return setting.lower() == "true"
-
-    @property
-    def default_appVersion_in_quotes_var(self):
-        setting = self._user_settings.get("appVersion_in_quotes_var", "True")
-        return setting.lower() == "true"
-
-    @property
-    def default_notes_present_in_templates_var(self):
-        setting = self._user_settings.get("notes_present_in_templates_var", "False")
-        return setting.lower() == "true"
-
-    @property
-    def default_helm_verify_integrity_var(self):
-        setting = self._user_settings.get("helm_verify_integrity_var", "False")
-        return setting.lower() == "true"
+    def get_additional_cnf_test_value(self, test: str):
+        """Returns the saved value for an additional CNF test"""
+        return self._user_settings.get(test, False)
 
     def _validate(self):
         """Ensures the config file is properly formatted"""
